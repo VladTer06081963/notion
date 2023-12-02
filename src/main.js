@@ -15,6 +15,12 @@ bot.command('start', (ctx) => {
   )
 })
 
+bot.command('new', (ctx) => {
+  ctx.reply(
+    'Добро пожаловать в бота. Отправьте тестовое сообщение с тезисами про историю.'
+  )
+})
+
 bot.on(message('text'), async (ctx) => {
   try {
     const text = ctx.message.text
