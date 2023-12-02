@@ -1,42 +1,49 @@
-import { Telegraf } from 'telegraf'
-import { message } from 'telegraf/filters'
-import config from 'config'
-import { chatGPT } from './chatgpt.js'
-import { create } from './notion.js'
-import { Loader } from './loader.js'
+import { Telegraf } from "telegraf";
+import { message } from "telegraf/filters";
+import config from "config";
+import { chatGPT } from "./chatgpt.js";
+import { create } from "./notion.js";
+import { Loader } from "./loader.js";
 
-const bot = new Telegraf(config.get('TELEGRAM_TOKEN'), {
+const bot = new Telegraf(config.get("TELEGRAM_TOKEN"), {
   handlerTimeout: Infinity,
-})
+});
 
-bot.command('start', (ctx) => {
+bot.command("start", (ctx) => {
   ctx.reply(
-    'Добро пожаловать в бота. Отправьте тестовое сообщение с тезисами про историю.'
-  )
-})
+    "Добро пожаловать в бота. Отправьте тестовое сообщение с тезисами про историю."
+  );
+});
 
-bot.on(message('text'), async (ctx) => {
+bot.command("new", (ctx) => {
+  ctx.reply(
+    "Добро пожаловать в бота. Отправьте тестовое сообщение с тезисами про историю."
+  );
+});
+
+bot.on(message("text"), async (ctx) => {
   try {
-    const text = ctx.message.text
+    const text = ctx.message.text;
 
-    if (!text.trim()) ctx.reply('Текст не может быть пустым')
+    if (!text.trim()) ctx.reply("Текст не может быть пустым");
 
-    const loader = new Loader(ctx)
+    ctx.reply("Запрос принял. Работаю");
+    const loader = new Loader(ctx);
 
-    loader.show()
+    loader.show();
 
-    const response = await chatGPT(text)
+    const response = await chatGPT(text);
 
-    if (!response) return ctx.reply('Ошибка с API', response)
+    if (!response) return ctx.reply("Ошибка с API", response);
 
-    const notionResponse = await create(text, response.content)
+    const notionResponse = await create(text, response.content);
 
-    loader.hide()
+    loader.hide();
 
-    ctx.reply(`Ваша страница: ${notionResponse.url}`)
+    ctx.reply(`Ваша страница: ${notionResponse.url}`);
   } catch (e) {
-    console.log('Error while proccessing text: ', e.message)
+    console.log("Error while proccessing text: ", e.message);
   }
-})
+});
 
-bot.launch()
+bot.launch();
